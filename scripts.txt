@@ -1,0 +1,42 @@
+CREATE DATABASE `all-about-dogs`;
+
+CREATE TABLE `all-about-dogs`.`dog-breeds` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `description` mediumtext NOT NULL,
+  `origin` varchar(45) NOT NULL,
+  `size` varchar(45) NOT NULL,
+  `lifespan` varchar(45) NOT NULL,
+  `adaptability` int NOT NULL,
+  `trainability` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `all-about-dogs`.`images` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `filename` varchar(45) NOT NULL,
+  `dogBreedId` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  CONSTRAINT `dogBreedId` FOREIGN KEY (`dogBreedId`) REFERENCES `dog-breeds` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `all-about-dogs`.`dog-breeds`
+(
+`name`,
+`description`,
+`origin`,
+`size`,
+`lifespan`,
+`adaptability`,
+`trainability`)
+VALUES
+(
+"Maltese",
+"The Maltese dog is a small, white, long-haired dog that is known for its playful and affectionate personality. They are originally from the Mediterranean island of Malta, and have been prized companions for centuries. Maltese dogs are full of energy, but they require only occasional exercise to keep them healthy and happy. A short walk or playtime in the yard is usually enough to satisfy their needs. They are also relatively low-maintenance dogs, and their long hair only needs to be brushed a few times a week. Maltese dogs are very intelligent and trainable. They are eager to please their owners, and can learn basic commands quickly. They are also very good with children, and make loving and loyal companions. But most of all, they love to be with their people. Even novice pet parents and apartment dwellers will find the Maltese to be excellent furry family members. These features make these loving dogs strong contenders for any future pet parents on the search for Maltese puppies. When considering a Maltese, it’s advisable to prioritize adopting from rescue organizations or shelters to provide a loving home to a dog in need. However, if you decide to purchase, it’s crucial to choose a reputable breeder. Conduct thorough research to ensure that the breeder follows ethical practices and prioritizes the well-being of their dogs. Reputable Maltese breeders prioritize the health and temperament of their dogs, conduct necessary health screenings, and provide a nurturing environment for the puppies. This active approach ensures that you bring home a healthy and happy pup while discouraging unethical breeding practices.",
+"Mediterranean, specifically Malta",
+"Small",
+"12-15 years",
+3,
+3);
