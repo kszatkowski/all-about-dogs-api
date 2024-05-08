@@ -9,8 +9,6 @@ import { FieldValidationError } from 'express-validator';
 
 const app = createApp();
 
-jest.mock('../src/services/db');
-
 const queryMock = jest.mocked(query);
 const baseUrl = '/dog-breeds';
 
@@ -18,11 +16,13 @@ const payload = {
   adaptability: 1,
   description: 'test description',
   lifespan: 'test lifespan',
-  name: 'test name',
+  name: 'supertest_test name',
   origin: 'test origin',
   size: 'test size',
   trainability: 1
 } as DogBreed;
+
+let insertedId = 0;
 
 const testValidation = (requestWithMethod: () => request.Test, payload: DogBreed) => {
   describe('when payload is passed', () => {
@@ -150,178 +150,143 @@ const testValidation = (requestWithMethod: () => request.Test, payload: DogBreed
   });
 };
 
-describe('GET /dog-breeds', () => {
-  beforeEach(() => {
-    queryMock.mockImplementation(() => Promise.resolve([{} as DogBreed]));
-  });
-  it('should return proper content-type headers', async () => {
-    const response = await request(app).get(baseUrl);
-
-    expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
-  });
-  it('should return array of objects in body', async () => {
-    const response = await request(app).get(baseUrl);
-
-    expect(Array.isArray(response.body)).toBe(true);
-  });
-  it('should return 200 status code', async () => {
-    const response = await request(app).get(baseUrl);
-
-    expect(response.status).toBe(StatusCodes.OK);
-  });
-});
-
-describe('GET /dog-breeds/:id', () => {
-  const id = 1;
-
-  beforeEach(() => {
-    queryMock.mockImplementation(() => Promise.resolve([{} as DogBreed]));
-  });
-
-  it('should return proper content-type headers', async () => {
-    const response = await request(app).get(`${baseUrl}/${id}`);
-
-    expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
-  });
-  it('should return object in body', async () => {
-    const response = await request(app).get(`${baseUrl}/${id}`);
-
-    expect(Array.isArray(response.body)).toBe(false);
-  });
-  it('should return 200 status code', async () => {
-    const response = await request(app).get(`${baseUrl}/${id}`);
-
-    expect(response.status).toBe(StatusCodes.OK);
-  });
-
-  describe('when passed id is not found', () => {
-    beforeEach(() => {
-      queryMock.mockImplementation(() => Promise.resolve([]));
-    });
-    it('should return error with error message', async () => {
-      const response = await request(app).get(`${baseUrl}/${id}`);
-      const error = response.body.error as AppError;
-
-      expect(error).toBe('Dog breed with passed id not found.');
-    });
-
-    it('should return 404 status code', async () => {
-      const response = await request(app).get(`${baseUrl}/${id}`);
-
-      expect(response.status).toBe(StatusCodes.NOT_FOUND);
-    });
-  });
-});
-
 describe('POST /dog-breeds', () => {
-  beforeEach(() => {
-    queryMock.mockImplementation(() => Promise.resolve({ insertId: 1 } as OkPacketParams));
+  let response: request.Response;
+  
+  beforeAll(async () => {
+    response = await request(app).post(baseUrl).send(payload);
+    insertedId = response.body
   });
 
   it('should return proper content-type headers', async () => {
-    const response = await request(app).post(baseUrl).send(payload);
-
     expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
   });
   it('should return id in body', async () => {
-    const response = await request(app).post(baseUrl).send(payload);
-
-    expect(response.body).toBe(1);
+    expect(typeof response.body).toBe('number');
+    expect(response.body).toBeGreaterThan(0);
   });
   it('should return 201 status code', async () => {
-    const response = await request(app).post(baseUrl).send(payload);
-
     expect(response.status).toBe(StatusCodes.CREATED);
-  });
-
-  describe('when insertId is not specified', () => {
-    beforeEach(() => {
-      queryMock.mockImplementation(() => Promise.resolve({} as OkPacketParams));
-    });
-    it('should return error with error message', async () => {
-      const response = await request(app).post(baseUrl).send(payload);
-      const error = response.body.error as AppError;
-
-      expect(error).toBe('Can not return insertId.');
-    });
-
-    it('should return 500 status code', async () => {
-      const response = await request(app).post(baseUrl).send(payload);
-
-      expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
-    });
   });
 
   testValidation(() => request(app).post(baseUrl), payload);
 });
 
 describe('PUT /dog-breeds/:id', () => {
-  const id = 1;
+  let response: request.Response;
 
-  beforeEach(() => {
-    queryMock.mockImplementation(() => Promise.resolve({ affectedRows: 1 } as OkPacketParams));
+  beforeAll(async () => {
+    response = await request(app).put(`${baseUrl}/${insertedId}`).send(payload);
   });
 
   it('should return 204 status code', async () => {
-    const response = await request(app).put(`${baseUrl}/${id}`).send(payload);
-
     expect(response.status).toBe(StatusCodes.NO_CONTENT);
   });
 
   describe('when there was no affected rows', () => {
-    beforeEach(() => {
-      queryMock.mockImplementation(() => Promise.resolve({ affectedRows: 0 } as OkPacketParams));
+    let response: request.Response;
+
+    beforeAll(async () => {
+      response = await request(app).put(`${baseUrl}/0`).send(payload);
     });
+
     it('should return error with error message', async () => {
-      const response = await request(app).put(`${baseUrl}/${id}`).send(payload);
       const error = response.body.error as AppError;
 
       expect(error).toBe('None dog breed affected.');
     });
 
-    it('should return 500 status code', async () => {
-      const response = await request(app).put(`${baseUrl}/${id}`).send(payload);
-
-      expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    it('should return 404 status code', async () => {
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
 
-  testValidation(() => request(app).put(`${baseUrl}/${id}`), payload);
+  testValidation(() => request(app).put(`${baseUrl}/${insertedId}`), payload);
 });
 
-describe('DELETE /dog-breeds/:id', () => {
-  const id = 1;
-
-  beforeEach(() => {
-    queryMock.mockImplementation(() => Promise.resolve([{ affectedRows: 1 } as OkPacketParams]));
+describe('GET /dog-breeds', () => {
+  let response: request.Response;
+  
+  beforeAll(async () => {
+    response = await request(app).get(baseUrl);
   });
 
   it('should return proper content-type headers', async () => {
-    const response = await request(app).delete(`${baseUrl}/${id}`);
+    expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
+  });
+  it('should return array of objects in body', async () => {
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+  it('should return 200 status code', async () => {
+    expect(response.status).toBe(StatusCodes.OK);
+  });
+});
 
+describe('GET /dog-breeds/:id', () => {
+  let response: request.Response;
+  
+  beforeAll(async () => {
+    response = await request(app).get(`${baseUrl}/${insertedId}`);
+  });
+
+  it('should return proper content-type headers', async () => {
+    expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
+  });
+  it('should return object in body', async () => {
+    expect(Array.isArray(response.body)).toBe(false);
+  });
+  it('should return 200 status code', async () => {
+    expect(response.status).toBe(StatusCodes.OK);
+  });
+
+  describe('when passed id is not found', () => {
+    let response: request.Response;
+  
+    beforeAll(async () => {
+      response = await request(app).get(`${baseUrl}/0`);
+    });
+
+    it('should return error with error message', async () => {
+      const error = response.body.error as AppError;
+
+      expect(error).toBe('Dog breed with passed id not found.');
+    });
+
+    it('should return 404 status code', async () => {
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    });
+  });
+});
+
+describe('DELETE /dog-breeds/:id', () => {
+  let response: request.Response;
+  
+  beforeAll(async () => {
+    response = await request(app).delete(`${baseUrl}/${insertedId}`);
+  });
+
+  it('should return proper content-type headers', async () => {
     expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
   });
   it('should return 204 status code', async () => {
-    const response = await request(app).delete(`${baseUrl}/${id}`);
-
     expect(response.status).toBe(StatusCodes.NO_CONTENT);
   });
 
   describe('when passed id is not found', () => {
-    beforeEach(() => {
-      queryMock.mockImplementation(() => Promise.resolve({ affectedRows: 0 } as OkPacketParams));
+    let response: request.Response;
+  
+    beforeAll(async () => {
+      response = await request(app).delete(`${baseUrl}/0`);
     });
+
     it('should return error with error message', async () => {
-      const response = await request(app).delete(`${baseUrl}/${id}`);
       const error = response.body.error as AppError;
 
       expect(error).toBe('None dog breed affected.');
     });
 
-    it('should return 500 status code', async () => {
-      const response = await request(app).delete(`${baseUrl}/${id}`);
-
-      expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    it('should return 404 status code', async () => {
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
 });

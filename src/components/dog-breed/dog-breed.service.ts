@@ -54,14 +54,14 @@ export default {
     );
 
     if (result.affectedRows === 0) {
-      throw new AppError('None dog breed affected.', StatusCodes.INTERNAL_SERVER_ERROR);
+      throw new AppError('None dog breed affected.', StatusCodes.NOT_FOUND);
     }
   },
   delete: async (id: number): Promise<void> => {
     const result = await query<OkPacketParams>(`DELETE FROM ${tableName} where id=?`, [id]);
 
     if (result.affectedRows === 0) {
-      throw new AppError('None dog breed affected.', StatusCodes.INTERNAL_SERVER_ERROR);
+      throw new AppError('None dog breed affected.', StatusCodes.NOT_FOUND);
     }
   }
 };
