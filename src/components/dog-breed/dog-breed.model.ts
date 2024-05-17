@@ -1,10 +1,13 @@
-export type DogBreed = {
-  id: string;
-  name: string;
-  description: string;
-  origin: string;
-  size: string;
-  lifespan: string;
-  adaptability: number;
-  trainability: number;
+import { DogBreedAttributes } from "src/db/models/DogBreed";
+
+export type DogBreed = DogBreedAttributes;
+
+export type GetAllDogBreedsQueryParams = {
+  page: string;
+  limit: string;
 };
+
+export type GetAllResponse = {
+  count: number;
+  rows: DogBreed[];
+}

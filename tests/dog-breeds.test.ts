@@ -3,15 +3,10 @@ import { AppError, createApp } from '@utils';
 import { DogBreed } from 'src/components/dog-breed/dog-breed.model';
 import { StatusCodes } from 'http-status-codes';
 import { ContentTypes } from '@utils/enums';
-import query from '../src/services/db';
-import { OkPacketParams } from 'mysql2';
 import { FieldValidationError } from 'express-validator';
 
 const app = createApp();
-
-const queryMock = jest.mocked(query);
 const baseUrl = '/dog-breeds';
-
 const payload = {
   adaptability: 1,
   description: 'test description',

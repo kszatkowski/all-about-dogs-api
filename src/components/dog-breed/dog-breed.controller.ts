@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import DogBreedService from './dog-breed.service';
 import { StatusCodes } from 'http-status-codes';
-import { DogBreed } from './dog-breed.model';
+import { DogBreed, GetAllDogBreedsQueryParams, GetAllResponse } from './dog-breed.model';
 import { ContentTypes } from '@utils/enums';
 import { validationResult } from 'express-validator';
 
 export default {
-  getAll: async (req: Request, res: Response<DogBreed[]>, next: NextFunction) => {
+  getAll: async (req: Request<null, null, null, GetAllDogBreedsQueryParams>, res: Response<GetAllResponse>, next: NextFunction) => {
     try {
-      const result = await DogBreedService.getAll();
+      const result = await DogBreedService.getAll(req.query);
 
       res.setHeader('Content-Type', ContentTypes.applicationJson).json(result);
     } catch (err) {
