@@ -3,15 +3,10 @@ import { AppError, createApp } from '@utils';
 import { DogBreed } from 'src/components/dog-breed/dog-breed.model';
 import { StatusCodes } from 'http-status-codes';
 import { ContentTypes } from '@utils/enums';
-import query from '../src/services/db';
-import { OkPacketParams } from 'mysql2';
 import { FieldValidationError } from 'express-validator';
 
 const app = createApp();
-
-const queryMock = jest.mocked(query);
 const baseUrl = '/dog-breeds';
-
 const payload = {
   adaptability: 1,
   description: 'test description',
@@ -22,7 +17,7 @@ const payload = {
   trainability: 1
 } as DogBreed;
 
-let insertedId = 0;
+let responseBody: DogBreed;
 
 const testValidation = (requestWithMethod: () => request.Test, payload: DogBreed) => {
   describe('when payload is passed', () => {
@@ -152,18 +147,18 @@ const testValidation = (requestWithMethod: () => request.Test, payload: DogBreed
 
 describe('POST /dog-breeds', () => {
   let response: request.Response;
-  
+
   beforeAll(async () => {
     response = await request(app).post(baseUrl).send(payload);
-    insertedId = response.body
+    responseBody = response.body;
   });
 
   it('should return proper content-type headers', async () => {
     expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
   });
   it('should return id in body', async () => {
-    expect(typeof response.body).toBe('number');
-    expect(response.body).toBeGreaterThan(0);
+    expect(typeof responseBody).toBe('object');
+    expect(responseBody.id).toBeGreaterThan(0);
   });
   it('should return 201 status code', async () => {
     expect(response.status).toBe(StatusCodes.CREATED);
@@ -176,7 +171,7 @@ describe('PUT /dog-breeds/:id', () => {
   let response: request.Response;
 
   beforeAll(async () => {
-    response = await request(app).put(`${baseUrl}/${insertedId}`).send(payload);
+    response = await request(app).put(`${baseUrl}/${responseBody.id}`).send(payload);
   });
 
   it('should return 204 status code', async () => {
@@ -193,7 +188,7 @@ describe('PUT /dog-breeds/:id', () => {
     it('should return error with error message', async () => {
       const error = response.body.error as AppError;
 
-      expect(error).toBe('None dog breed affected.');
+      expect(error).toBe('Dog breed not found.');
     });
 
     it('should return 404 status code', async () => {
@@ -201,12 +196,12 @@ describe('PUT /dog-breeds/:id', () => {
     });
   });
 
-  testValidation(() => request(app).put(`${baseUrl}/${insertedId}`), payload);
+  testValidation(() => request(app).put(`${baseUrl}/${responseBody.id}`), payload);
 });
 
 describe('GET /dog-breeds', () => {
   let response: request.Response;
-  
+
   beforeAll(async () => {
     response = await request(app).get(baseUrl);
   });
@@ -214,8 +209,11 @@ describe('GET /dog-breeds', () => {
   it('should return proper content-type headers', async () => {
     expect(response.headers['content-type']).toBe(ContentTypes.applicationJson);
   });
-  it('should return array of objects in body', async () => {
-    expect(Array.isArray(response.body)).toBe(true);
+  it('should return in body object with `rows` key which contains array of objects', async () => {
+    expect(Array.isArray(response.body.rows)).toBe(true);
+  });
+  it('should return in body object with `count` key', async () => {
+    expect(response.body.count).toBeGreaterThan(0);
   });
   it('should return 200 status code', async () => {
     expect(response.status).toBe(StatusCodes.OK);
@@ -224,9 +222,9 @@ describe('GET /dog-breeds', () => {
 
 describe('GET /dog-breeds/:id', () => {
   let response: request.Response;
-  
+
   beforeAll(async () => {
-    response = await request(app).get(`${baseUrl}/${insertedId}`);
+    response = await request(app).get(`${baseUrl}/${responseBody.id}`);
   });
 
   it('should return proper content-type headers', async () => {
@@ -241,7 +239,7 @@ describe('GET /dog-breeds/:id', () => {
 
   describe('when passed id is not found', () => {
     let response: request.Response;
-  
+
     beforeAll(async () => {
       response = await request(app).get(`${baseUrl}/0`);
     });
@@ -249,7 +247,7 @@ describe('GET /dog-breeds/:id', () => {
     it('should return error with error message', async () => {
       const error = response.body.error as AppError;
 
-      expect(error).toBe('Dog breed with passed id not found.');
+      expect(error).toBe('Dog breed not found.');
     });
 
     it('should return 404 status code', async () => {
@@ -260,9 +258,9 @@ describe('GET /dog-breeds/:id', () => {
 
 describe('DELETE /dog-breeds/:id', () => {
   let response: request.Response;
-  
+
   beforeAll(async () => {
-    response = await request(app).delete(`${baseUrl}/${insertedId}`);
+    response = await request(app).delete(`${baseUrl}/${responseBody.id}`);
   });
 
   it('should return proper content-type headers', async () => {
@@ -274,7 +272,7 @@ describe('DELETE /dog-breeds/:id', () => {
 
   describe('when passed id is not found', () => {
     let response: request.Response;
-  
+
     beforeAll(async () => {
       response = await request(app).delete(`${baseUrl}/0`);
     });
@@ -282,7 +280,7 @@ describe('DELETE /dog-breeds/:id', () => {
     it('should return error with error message', async () => {
       const error = response.body.error as AppError;
 
-      expect(error).toBe('None dog breed affected.');
+      expect(error).toBe('Dog breed not found.');
     });
 
     it('should return 404 status code', async () => {

@@ -7,14 +7,14 @@ const errorMiddleware = (error: AppError | Error, req: Request, res: Response, n
     const { httpStatusCode, message } = error;
 
     res.status(httpStatusCode).json({
-      error: message,
+      error: message
     });
   } else {
     const { message, stack } = error;
 
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message,
-      stack,
+      stack
     });
   }
 };

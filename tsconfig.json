@@ -11,7 +11,8 @@
       "@middlewares": ["src/middlewares"],
       "@services/*": ["src/services/*"],
       "@utils": ["src/utils"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@db/*": ["src/db/*"]
     },
     "resolveJsonModule": true,
     "sourceMap": true,
