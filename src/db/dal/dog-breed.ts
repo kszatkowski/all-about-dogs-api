@@ -57,11 +57,3 @@ export const getAll = async (
     rows
   };
 };
-
-export default {
-  create,
-  update,
-  getById,
-  deleteById,
-  getAll
-};

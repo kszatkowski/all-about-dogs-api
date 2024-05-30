@@ -1,18 +1,14 @@
-import query from '@services/db';
-import { AppError } from '@utils';
-import { StatusCodes } from 'http-status-codes';
-import { OkPacketParams } from 'mysql2';
-
-const tableName = '`images`';
+import { dalImage } from 'src/db/dal';
+import { ImageAttributes, ImageAttributesInput } from 'src/db/models/Image';
 
 export default {
-  upload: async (filename: string): Promise<number> => {
-    const result = await query<OkPacketParams>(`INSERT INTO ${tableName} (filename, dogBreedId) VALUES (?, ?)`, [filename, null]);
-
-    if (result.insertId) {
-      return result.insertId;
+  create: async (payload: ImageAttributesInput): Promise<ImageAttributes> => {
+    if (payload.dogBreedId) {
+      payload.dogBreedId = +payload.dogBreedId;
     }
 
-    throw new AppError('Can not return insertId.', StatusCodes.INTERNAL_SERVER_ERROR);
+    const result = await dalImage.create(payload);
+
+    return result;
   }
 };
