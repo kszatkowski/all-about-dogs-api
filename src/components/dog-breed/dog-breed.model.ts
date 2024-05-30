@@ -1,4 +1,4 @@
-import { DogBreedAttributes } from "src/db/models/DogBreed";
+import { DogBreedAttributes } from '@db/models';
 
 export type DogBreed = DogBreedAttributes;
 
@@ -10,4 +10,4 @@ export type GetAllDogBreedsQueryParams = {
 export type GetAllResponse = {
   count: number;
   rows: DogBreed[];
-}
+};

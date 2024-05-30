@@ -1,5 +1,5 @@
-import { dalImage } from 'src/db/dal';
-import { ImageAttributes, ImageAttributesInput } from 'src/db/models/Image';
+import { dalImage } from '@db/dal';
+import { ImageAttributes, ImageAttributesInput } from '@db/models';
 
 export default {
   create: async (payload: ImageAttributesInput): Promise<ImageAttributes> => {

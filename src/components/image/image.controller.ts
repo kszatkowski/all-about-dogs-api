@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import ImageService from './image.service';
 import { StatusCodes } from 'http-status-codes';
-import { ImageAttributes, ImageAttributesInput } from 'src/db/models/Image';
+import { ImageAttributes, ImageAttributesInput } from '@db/models';
 
 export default {
   upload: async (req: Request<unknown, ImageAttributes, ImageAttributesInput>, res: Response, next: NextFunction) => {

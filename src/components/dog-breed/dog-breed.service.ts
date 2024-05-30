@@ -1,5 +1,5 @@
-import { dalDogBreed } from 'src/db/dal';
-import { DogBreedAttributes, DogBreedAttributesInput } from 'src/db/models/DogBreed';
+import { dalDogBreed } from '@db/dal';
+import { DogBreedAttributes, DogBreedAttributesInput } from '@db/models';
 import { GetAllDogBreedsQueryParams, GetAllResponse } from './dog-breed.model';
 
 export default {
