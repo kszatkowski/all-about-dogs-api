@@ -42,7 +42,7 @@ class DogBreed extends Model<DogBreedAttributes, DogBreedAttributesInput> implem
   };
 }
 
-export const initialize = DogBreed.init(
+DogBreed.init(
   {
     id: {
       type: DataTypes.INTEGER,
