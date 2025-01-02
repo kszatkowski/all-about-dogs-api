@@ -10,9 +10,19 @@ export default {
       const validation = validationResult(req);
 
       if (validation.isEmpty()) {
-        const result = await AuthService.insert(req.body);
+        const tokens = await AuthService.register(req.body);
 
-        res.status(StatusCodes.CREATED).json(result);
+
+        res
+        .cookie('accessToken', tokens.accessToken, {
+          httpOnly: true,
+          maxAge: 60 * 1000,
+        })
+        .cookie('refreshToken', tokens.refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 5 * 1000,
+        })
+        .status(StatusCodes.CREATED).send();
       } else {
         res.status(StatusCodes.BAD_REQUEST).json({
           errors: validation.mapped()
@@ -24,23 +34,27 @@ export default {
   },
   login: async (req: Request<{ userId: string; }, null, UserAttributesInput>, res: Response, next: NextFunction) => {
     try {
-      const accessToken = await AuthService.login(req.body);
+      const { accessToken, refreshToken } = await AuthService.login(req.body);
 
-      if (accessToken) {
+      if (accessToken && refreshToken) {
         res
-          .cookie('jwt', accessToken, {
-            httpOnly: true,
-            maxAge: 60 * 1000
-          })
-          .status(StatusCodes.OK)
-          .send();
+        .cookie('accessToken', accessToken, {
+          httpOnly: true,
+          maxAge: 60 * 1000,
+        })
+        .cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 5 * 1000,
+        })
+        .status(StatusCodes.OK).send();
       }
     } catch (err) {
       next(err);
     }
   },
   logout: async (req: Request, res: Response, next: NextFunction) => {
-    res.clearCookie('jwt');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
 
     res.status(StatusCodes.NO_CONTENT).send();
   }

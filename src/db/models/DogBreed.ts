@@ -82,7 +82,6 @@ DogBreed.init(
   {
     sequelize,
     tableName: 'DogBreeds',
-    
   }
 );
 

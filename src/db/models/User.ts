@@ -27,24 +27,25 @@ User.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
+      unique: true,
     },
     email: {
       type: DataTypes.STRING(64),
-      allowNull: false
+      allowNull: false,
     },
     password: {
       type: DataTypes.STRING(64),
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
     sequelize,
-    tableName: 'Users'
+    tableName: 'Users',
   }
 );
 
-User.beforeSave(async user => {
+User.beforeSave(async (user) => {
   try {
     const encryptedPassword = await bcrypt.hash(user.password, saltRounds);
     user.password = encryptedPassword;
