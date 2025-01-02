@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Tokens } from './auth.model';
+import { MyJwtTokenPayload } from 'src/models';
 
 export default {
   isEmailExists: async (email: string): Promise<boolean> => {
@@ -13,16 +14,16 @@ export default {
     return isEmailExists;
   },
   register: async (payload: UserAttributesInput): Promise<Tokens> => {
-    const userId = await insertUser(payload);
+    const userId = await dalUser.create(payload);
     const accessToken = generateAccessToken(userId);
     const refreshToken = generateRefreshToken(userId);
 
-    await saveRefreshToken(refreshToken, userId);
+    await dalRefreshToken.saveRefreshToken({ token: refreshToken, userId });
 
     return {
       accessToken,
-      refreshToken
-    }
+      refreshToken,
+    };
   },
   login: async (payload: UserAttributesInput): Promise<Tokens> => {
     const user = await dalUser.get(payload.email);
@@ -40,27 +41,42 @@ export default {
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
-    await saveRefreshToken(refreshToken, user.id);
+    await dalRefreshToken.saveRefreshToken({ token: refreshToken, userId: user.id });
 
     return {
       accessToken,
       refreshToken,
     };
-  }
+  },
+  refresh: (refreshToken: string): string => {
+    console.log('refreshToken', refreshToken);
+
+    if (!refreshToken) {
+      throw new AppError('Unauthorized user.', StatusCodes.UNAUTHORIZED);
+    }
+
+    try {
+      const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as MyJwtTokenPayload;
+      const newAccessToken = jwt.sign({ userId: payload.userId }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1m' });
+
+      return newAccessToken;
+    } catch (err) {
+      throw new AppError('Invalid refresh token.', StatusCodes.UNAUTHORIZED);
+    }
+  },
+  logout: async (userId?: string): Promise<void> => {
+    try {
+      if (!userId) {
+        throw new AppError('Unauthorized user.', StatusCodes.UNAUTHORIZED);
+      }
+
+      await dalRefreshToken.removeRefreshToken(userId);
+    } catch (err) {
+      throw new AppError('Invalid refresh token.', StatusCodes.UNAUTHORIZED);
+    }
+  },
 };
 
-const generateAccessToken = (userId: string) =>
-  jwt.sign({id: userId}, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1m' });
+const generateAccessToken = (userId: string) => jwt.sign({ userId: userId }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '1m' });
 
-const generateRefreshToken = (userId: string) =>
-  jwt.sign({id: userId}, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '5m' });
-
-const saveRefreshToken = async (token: string, userId: string): Promise<void> => {
-  await dalRefreshToken.saveRefreshToken({ token, userId });
-};
-
-const insertUser = async (payload: UserAttributesInput): Promise<string> => {
-  const userId = await dalUser.create(payload);
-
-  return userId;
-};
+const generateRefreshToken = (userId: string) => jwt.sign({ userId: userId }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '5m' });

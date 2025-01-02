@@ -13,7 +13,10 @@ router.post('/sign-up', AuthValidation, AuthController.signUp);
 router.post('/login', AuthController.login);
 
 // POST /logout
-router.post('/logout', AuthController.logout);
+router.post('/logout', isAuthenticated, AuthController.logout);
+
+// POST /logout
+router.post('/refresh', AuthController.refresh);
 
 // GET /secured - for testing purposes
 router.get('/secured', isAuthenticated, (req: Request, res: Response, next: NextFunction) => {
