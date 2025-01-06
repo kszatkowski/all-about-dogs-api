@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { StatusCodes } from 'http-status-codes';
+
 import AuthService from './auth.service';
 import { UserAttributesInput } from '@db/models';
 import authService from './auth.service';

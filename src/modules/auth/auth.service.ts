@@ -1,11 +1,12 @@
-import { dalUser, dalRefreshToken } from '@db/dal';
-import { UserAttributesInput } from '@db/models';
-import { AppError } from '@utils';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
+import { dalUser, dalRefreshToken } from '@db/dal';
+import { UserAttributesInput } from '@db/models';
+import { AppError } from '@utils';
 import { Tokens } from './auth.model';
-import { MyJwtTokenPayload } from 'src/models';
+import { MyJwtTokenPayload } from '@models';
 
 export default {
   isEmailExists: async (email: string): Promise<boolean> => {

@@ -1,9 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { dogBreedsRoutes, imagesRoutes, authRoutes } from '@components';
-import { errorMiddleware } from '@middlewares';
 import cookieParser from 'cookie-parser';
+
+import { dogBreedsRoutes, imagesRoutes, authRoutes } from '@modules';
+import { errorMiddleware } from '@middlewares';
 
 export function createApp() {
   const app = express();

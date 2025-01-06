@@ -1,8 +1,8 @@
+import { MyJwtTokenPayload } from '@models';
 import { AppError } from '@utils';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import jwt, { TokenExpiredError } from 'jsonwebtoken';
-import { MyJwtTokenPayload } from 'src/models';
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   const accessToken = req.cookies.accessToken;

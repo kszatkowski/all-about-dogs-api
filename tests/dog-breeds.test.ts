@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { AppError, createApp } from '@utils';
-import { DogBreed } from 'src/components/dog-breed/dog-breed.model';
+import { DogBreed } from 'src/modules/dog-breed/dog-breed.model';
 import { StatusCodes } from 'http-status-codes';
 import { ContentTypes } from '@utils/enums';
 import { FieldValidationError } from 'express-validator';
