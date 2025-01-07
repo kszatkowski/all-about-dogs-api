@@ -9,10 +9,10 @@ import { Tokens } from './auth.model';
 import { MyJwtTokenPayload } from '@models';
 
 export default {
-  isEmailExists: async (email: string): Promise<boolean> => {
-    const isEmailExists = await dalUser.isEmailExists(email);
+  isEmailExist: async (email: string): Promise<boolean> => {
+    const isEmailExist = await dalUser.isEmailExist(email);
 
-    return isEmailExists;
+    return isEmailExist;
   },
   register: async (payload: UserAttributesInput): Promise<Tokens> => {
     const userId = await dalUser.create(payload);
@@ -50,8 +50,6 @@ export default {
     };
   },
   refresh: (refreshToken: string): string => {
-    console.log('refreshToken', refreshToken);
-
     if (!refreshToken) {
       throw new AppError('Unauthorized user.', StatusCodes.UNAUTHORIZED);
     }

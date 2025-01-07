@@ -11,7 +11,7 @@ export default [
     .isEmail()
     .withMessage('Please provide correct email address.')
     .custom(async (email: string) => {
-      const isEmailExists = await AuthService.isEmailExists(email);
+      const isEmailExists = await AuthService.isEmailExist(email);
 
       if (isEmailExists) {
         throw new Error('This e-mail address already exists.');

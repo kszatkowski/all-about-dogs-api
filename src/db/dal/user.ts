@@ -6,11 +6,11 @@ export const create = async (payload: UserAttributesInput): Promise<string> => {
   return user.id;
 };
 
-export const isEmailExists = async (email: string): Promise<boolean> => {
+export const isEmailExist = async (email: string): Promise<boolean> => {
   const result = await User.findOne({
     where: {
-      email
-    }
+      email,
+    },
   });
 
   return !!result;
@@ -19,8 +19,8 @@ export const isEmailExists = async (email: string): Promise<boolean> => {
 export const get = async (email: string): Promise<User | null> => {
   const result = await User.findOne({
     where: {
-      email
-    }
+      email,
+    },
   });
 
   return result;

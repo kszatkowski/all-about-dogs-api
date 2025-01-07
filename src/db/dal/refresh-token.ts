@@ -16,6 +16,6 @@ export const removeRefreshToken = async (userId: string): Promise<void> => {
   });
 
   if (!deletedCount) {
-    throw new AppError('Dog breed not found.', StatusCodes.NOT_FOUND);
+    throw new AppError('Refresh token not found.', StatusCodes.NOT_FOUND);
   }
 };
