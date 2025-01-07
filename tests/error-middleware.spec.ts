@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApp } from '@utils';
 import { StatusCodes } from 'http-status-codes';
-import dogBreedService from '../src/components/dog-breed/dog-breed.service';
+import dogBreedService from '../src/modules/dog-breed/dog-breed.service';
 
 const app = createApp();
 

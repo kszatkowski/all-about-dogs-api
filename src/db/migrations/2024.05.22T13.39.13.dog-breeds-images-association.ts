@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, QueryInterface } from 'sequelize';
 import type { MigrationFn } from 'umzug';
 import { DogBreedAttributes } from '../models/DogBreed';
 
